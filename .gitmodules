@@ -1,0 +1,6 @@
+[submodule "2018-elections-unoffical"]
+	path = 2018-elections-unoffical
+	url = https://github.com/MEDSL/2018-elections-unoffical.git
+[submodule "covid-19-data"]
+	path = covid-19-data
+	url = https://github.com/nytimes/covid-19-data.git

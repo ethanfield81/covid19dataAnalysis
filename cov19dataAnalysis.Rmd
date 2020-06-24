@@ -1,0 +1,60 @@
+---
+title: "Covid19DataAnalysis"
+author: "Ethan field"
+date: "6/24/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(ggplot2)
+library(tidyverse)
+library(maps)
+```
+
+```{r}
+# data import
+usCensus <- read_csv("co-est2019-alldata.csv")
+covCounties <- read_csv("us-counties.csv", col_types = "Dccnnn")
+covStates <- read_csv("us-states.csv", col_types = "Dcnnn")
+
+#adding change in cases
+covCounties <- group_by(covCounties, fips) %>%
+  mutate(casesChange = cases - lag(cases)) %>%
+  mutate(deathsChange = deaths - lag(deaths))
+
+covStates <- group_by(covStates, state) %>%
+  mutate(casesChange = cases - lag(cases)) %>%
+  mutate(deathsChange = deaths - lag(deaths))
+
+paCounties <- filter(covCounties, state == "Pennsylvania")
+
+unionPAcov <- filter(paCounties, county == "Union")
+
+paCountyMap <- map("county", "pennsylvania")
+
+usFIPS <- county.fips
+
+
+
+```
+```{r}
+#plot of staes by cases
+qplot(x = date, y = cases, data = covStates, color = state)
+
+#demo of cases and deaths for all counties
+ggplot(data = paCounties) +
+  geom_area(aes(x = date, y = cases, color = "red"), position = "stack") +
+  geom_area(aes(x = date, y = deaths, color = "blue"), position = "stack")
+
+
+ggplot(data = paCounties) +
+  geom_map(aes(map_id = county, fill = cases), map = map_data(paCountyMap))
+
+
+# try to make map that displays the correlation of difference from national average in the popular vote for 2016 national election with
+# change in Covid-19 cases from the lowest after 4/1. 
+
+
+```
