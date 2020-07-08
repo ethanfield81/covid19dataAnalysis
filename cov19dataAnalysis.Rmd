@@ -16,8 +16,12 @@ library(maps)
 ```{r}
 # data import
 usCensus <- read_csv("co-est2019-alldata.csv")
-covCounties <- read_csv("us-counties.csv", col_types = "Dccnnn")
-covStates <- read_csv("us-states.csv", col_types = "Dcnnn")
+
+covCounties <- read_csv("./covid-19-data/us-counties.csv", col_types = "Dccnnn")
+
+covStates <- read_csv("./covid-19-data/us-states.csv", col_types = "Dcnnn")
+
+# add fips to usCensus by concat state + county numbers
 
 #adding change in cases
 covCounties <- group_by(covCounties, fips) %>%
@@ -32,11 +36,9 @@ paCounties <- filter(covCounties, state == "Pennsylvania")
 
 unionPAcov <- filter(paCounties, county == "Union")
 
-paCountyMap <- map("county", "pennsylvania")
+paCountyMap <- map("county", "penn")
 
 usFIPS <- county.fips
-
-
 
 ```
 ```{r}
@@ -48,13 +50,25 @@ ggplot(data = paCounties) +
   geom_area(aes(x = date, y = cases, color = "red"), position = "stack") +
   geom_area(aes(x = date, y = deaths, color = "blue"), position = "stack")
 
+paCountyMapData <- map_data(paCountyMap)
 
 ggplot(data = paCounties) +
-  geom_map(aes(map_id = county, fill = cases), map = map_data(paCountyMap))
+  geom_map(aes(map_id = county, fill = cases), map = map_data(paCountyMap))+
+  expand_limits(x = )
 
 
 # try to make map that displays the correlation of difference from national average in the popular vote for 2016 national election with
 # change in Covid-19 cases from the lowest after 4/1. 
+
+
+# add normalizaation for population
+# 
+# still try to find the data for residential land area by county to try to compare population densities in various counties
+
+```
+
+```{r}
+
 
 
 ```
