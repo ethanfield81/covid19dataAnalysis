@@ -17,9 +17,11 @@ library(maps)
 # data import
 usCensus <- read_csv("co-est2019-alldata.csv")
 
-covCounties <- read_csv("./covid-19-data/us-counties.csv", col_types = "Dccnnn")
+covCounties <- read_csv("./covid-19-data/us-counties.csv", col_types = "Dcccnn")
 
-covStates <- read_csv("./covid-19-data/us-states.csv", col_types = "Dcnnn")
+covStates <- read_csv("./covid-19-data/us-states.csv", col_types = "Dccnn")
+
+covUS <- read_csv("./covid-19-data/us.csv")
 
 # add fips to usCensus by concat state + county numbers
 
@@ -32,18 +34,39 @@ covStates <- group_by(covStates, state) %>%
   mutate(casesChange = cases - lag(cases)) %>%
   mutate(deathsChange = deaths - lag(deaths))
 
+covUS <- covUS %>%
+  mutate(casesChange = cases - lag(cases)) %>%
+  mutate(deathsChange = deaths - lag(deaths))
+
+
+```
+
+
+```{r}
+
 paCounties <- filter(covCounties, state == "Pennsylvania")
 
 unionPAcov <- filter(paCounties, county == "Union")
 
-paCountyMap <- map("county", "penn")
+usefulCensus <- select(usCensus, SUMLEV, REGION, DIVISION, STATE, COUNTY, STNAME, CTYNAME, POPESTIMATE2019) %>%
+  mutate(fips = paste0(STATE, COUNTY))
 
 usFIPS <- county.fips
 
+covCounties <- left_join(covCounties, usefulCensus, by = "fips") %>%
+  mutate(casesNorm = cases/POPESTIMATE2019) %>%
+  mutate(deathsNorm = deaths/POPESTIMATE2019) %>%
+  mutate(casesChangeNorm = casesChange/POPESTIMATE2019) %>%
+  mutate (deathsChangeNorm = deathsChange/POPESTIMATE2019)
+
 ```
+
+
 ```{r}
 #plot of staes by cases
 qplot(x = date, y = cases, data = covStates, color = state)
+
+qplot(x = date, y = casesChange, data = covUS)
 
 #demo of cases and deaths for all counties
 ggplot(data = paCounties) +
